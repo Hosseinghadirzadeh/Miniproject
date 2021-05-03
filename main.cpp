@@ -8,32 +8,59 @@ struct words {
 };
 words *Head = nullptr;
 
-void CreateWord();// A function for inserting words in the Linked list
-int DeleteWord(string);// A function to delete a word from the list
 
+words *CreateWord(const string &);//A function to create a word
+void print();//Print function
+void AddWord(words *);// A function for inserting words in the Linked list
+int DeleteWord(string);// A function to delete a word from the list
+void search(string);// A function to search among words
+void DeleteSynonyms();
 
 int main() {
-    while (true){
-    int selector;
-    cout << "0.EXIT\n";
-    cout << "1.ADD word and their synonyms\n";
-    cout << "2.Delete a word with it's synonyms\n";
-    cin >> selector;
-    switch (selector) {
-        case 0:
-            return 0;
-        case 1:
-            CreateWord();
-            break;
-        case 2:
-            cout << "Enter the word you want to be deleted:\n";
-            string dword;
-            cin >> dword;
-            DeleteWord(dword);
-            break;
+    bool flag = true;
+    string word;
+    while (flag) {
+        int selector;
+        cout << "0.EXIT\n";
+        cout << "1.ADD word and their synonyms\n";
+        cout << "2.Delete a word with it's synonyms\n";
+        cout << "3.Search for word and their synonyms\n";
+        cout << "4.Print the dictionary\n";
+        cout << "5.Delete Synonym\n";
+        cin >> selector;
+        switch (selector) {
+            case 0:
+                flag = false;
+                break;
+            case 1: {
+                cout << "Enter the word: \n";
+                cin >> word;
+                AddWord(CreateWord(word));
+
+                break;
+            }
+            case 2: {
+                cout << "Enter the word you want to be deleted:\n";
+                string dword;
+                cin >> dword;
+                DeleteWord(dword);
+                break;
+            }
+            case 3: {
+                cout << "Enter the word you want to find: \n";
+                string fword;
+                cin >> fword;
+                search(fword);
+                break;
+            }
+            case 4:
+                print();
+                break;
+            case 5:
+                DeleteSynonyms();
 
 
-             }
+        }
 
 
     }
@@ -41,27 +68,24 @@ int main() {
 
 }
 
-void CreateWord() {
+void AddWord(words *node) {
     words *current;
-    int n;
-    cout << "Enter the word:\n";
-    words *node = new words;
-    cin >> node->word;
-    node->next = nullptr;
+
     if (Head == nullptr || node->word < Head->word) {
         node->next = Head;
         Head = node;
     } else {
         current = Head;
-        while (current->next != nullptr && current->next->word < node->word) {
+        while (current->next != nullptr && current->next->word <= node->word) {
             current = current->next;
         }
-        if (current->next->word != node->word) {
+        if (current->word != node->word) {
             node->next = current->next;
             current->next = node;
         }
 
     }
+    int n;
     cout << "Enter the number of the synonyms:\n";
     cin >> n;
     node->syn = nullptr;
@@ -95,7 +119,7 @@ void CreateWord() {
 
 int DeleteWord(string word) {
     words *current;
-    words *prev = nullptr;
+    words *prev;
     current = Head;
     if (current == nullptr)
         cout << "List is empty";
@@ -121,4 +145,61 @@ int DeleteWord(string word) {
     }
 
     return 0;
+}
+
+void search(string word) {
+    words *current;
+    words *current2;
+    current = Head;
+
+
+//    if (current == nullptr)
+//        cout << "List is empty";
+//    else
+    while (current != nullptr) {
+
+        if (current->word == word) {
+            cout << "word: " << current->word << endl;
+            current2 = current->syn;
+            while (current2 != nullptr) {
+                cout << current2->word;
+                current2 = current2->next;
+            }
+        }
+        current = current->next;
+
+
+    }
+
+}
+
+words *CreateWord(const string &word) {
+    words *node = new words{word, nullptr, nullptr};
+
+    return node;
+
+}
+
+void print() {
+    words *current = Head;
+    words *current2 = current->syn;
+    while (current != nullptr) {
+        cout << "word: " << current->word << endl;
+        cout << "synonyms:\n";
+        while (current2 != nullptr) {
+            cout << "\t" << current2->word;
+            current2 = current2->next;
+        }
+        current = current->next;
+    }
+
+}
+void DeleteSynonyms(){
+
+
+
+
+
+
+
 }
