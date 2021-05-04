@@ -8,14 +8,15 @@ struct words {
 };
 words *Head = nullptr;
 
-void DeleteAllSyn(words* syn);//A function to delete all synonyms of the word which is used in DeleteWord function
+void DeleteAllSyn(words *syn);//A function to delete all synonyms of the word which is used in DeleteWord function
 words *CreateWord(const string &);//A function to create a word
 void print();//Print function
 void AddWord(words *);// A function for inserting words in the Linked list
 int DeleteWord(string);// A function to delete a word from the list
 void search(string);// A function to search among words
 void DeleteSynonyms();// A function to delete single synonyms by searching it
-words* systematicSearch(string word);// This function is not accessible by user and it's systematic
+words *systematicSearch(string word);// This function is not accessible by user and it's systematic
+void Edit();
 
 int main() {
     bool flag = true;
@@ -28,6 +29,7 @@ int main() {
         cout << "3.Search for word and their synonyms\n";
         cout << "4.Print the dictionary\n";
         cout << "5.Delete Synonym\n";
+        cout << "6.Edit Word\n";
         cin >> selector;
         switch (selector) {
             case 0:
@@ -59,6 +61,9 @@ int main() {
                 break;
             case 5:
                 DeleteSynonyms();
+                break;
+            case 6:Edit();
+                break;
 
 
         }
@@ -100,17 +105,18 @@ void AddWord(words *node) {
             sw->next = node->syn;
             node->syn = sw;
         } else {
-            current2=node->syn;
-            while (current2->next!= nullptr && current2->next->word <= sw->word)
-                current2=current2->next;
-            sw->next=current2->next;
-            current2->next=sw;
+            current2 = node->syn;
+            while (current2->next != nullptr && current2->next->word <= sw->word)
+                current2 = current2->next;
+            sw->next = current2->next;
+            current2->next = sw;
 
         }
     }
 
 
 }
+
 int DeleteWord(string word) {
     words *current;
     words *prev;
@@ -141,6 +147,7 @@ int DeleteWord(string word) {
 
     return 0;
 }
+
 void search(string word) {
     words *current;
     words *current2;
@@ -150,28 +157,30 @@ void search(string word) {
     if (current == nullptr)
         cout << "List is empty";
     else
-    while (current != nullptr) {
+        while (current != nullptr) {
 
-        if (current->word == word) {
-            cout << "\t word: " << current->word << endl;
-            current2 = current->syn;
-            while (current2 != nullptr) {
-                cout <<"\t\t Synonyms: "<<current2->word<<"\n";
-                current2 = current2->next;
+            if (current->word == word) {
+                cout << "\t word: " << current->word << endl;
+                current2 = current->syn;
+                while (current2 != nullptr) {
+                    cout << "\t\t Synonyms: " << current2->word << "\n";
+                    current2 = current2->next;
+                }
             }
+            current = current->next;
+
+
         }
-        current = current->next;
-
-
-    }
 
 }
+
 words *CreateWord(const string &word) {
-    words* node = new words{word, nullptr, nullptr};
+    words *node = new words{word, nullptr, nullptr};
 
     return node;
 
 }
+
 void print() {
     words *current = Head;
 
@@ -180,13 +189,14 @@ void print() {
         cout << "\t word: " << current->word << endl;
         cout << "\tsynonyms:\n";
         while (current2 != nullptr) {
-            cout << "\t\t " << current2->word<<endl;
+            cout << "\t\t " << current2->word << endl;
             current2 = current2->next;
         }
         current = current->next;
     }
 
 }
+
 void DeleteSynonyms() {
     string word, syn;
     words *prev;
@@ -194,11 +204,11 @@ void DeleteSynonyms() {
     cin >> word;
     words *node = systematicSearch(word);
     cout << "Enter the synonyms of the word: \n";
-    cin>>syn;
-    words** head=&node->syn;
-    words* current=*head;
+    cin >> syn;
+    words **head = &node->syn;
+    words *current = *head;
 
-    while (current){
+    while (current) {
 
         if (current->word == syn) {
             if (current == *head && current->next == nullptr)
@@ -213,11 +223,12 @@ void DeleteSynonyms() {
             return;
         }
         prev = current;
-        current=current->next;
+        current = current->next;
     }
 
 }
-void DeleteAllSyn(words* syn){
+
+void DeleteAllSyn(words *syn) {
     words *temp;
     while (syn) {
         temp = syn;
@@ -227,8 +238,9 @@ void DeleteAllSyn(words* syn){
 
 
 }
-words* systematicSearch(string word){
-   words*current=Head;
+
+words *systematicSearch(string word) {
+    words *current = Head;
 
     while (current) {
         if (current->word == word)
@@ -236,5 +248,15 @@ words* systematicSearch(string word){
         current = current->next;
     }
     return nullptr;
+
+}
+void Edit(){
+    string word,newWord;
+    cout<<"Enter the word you want to be edited:\n";
+    cin>>word;
+    words* node=systematicSearch(word);
+    cout<<"========Enter the new word========\n";
+    cin>>newWord;
+    node->word=newWord;
 
 }
