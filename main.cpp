@@ -1,4 +1,5 @@
 #include <iostream>
+#include<fstream>
 
 using namespace std;
 struct words {
@@ -18,7 +19,10 @@ void DeleteSynonyms();// A function to delete single synonyms by searching it
 words *systematicSearch(string word);// This function is not accessible by user and it's systematic
 void Edit();
 
+void save(ofstream &);
+
 int main() {
+    ofstream Dic_file("dictionaryList.txt");
     bool flag = true;
     string word;
     while (flag) {
@@ -30,6 +34,7 @@ int main() {
         cout << "4.Print the dictionary\n";
         cout << "5.Delete Synonym\n";
         cout << "6.Edit Word\n";
+        cout << "7.Save the dictionary on file\n";
         cin >> selector;
         switch (selector) {
             case 0:
@@ -62,7 +67,11 @@ int main() {
             case 5:
                 DeleteSynonyms();
                 break;
-            case 6:Edit();
+            case 6:
+                Edit();
+                break;
+            case 7:
+                save();
                 break;
 
 
@@ -250,13 +259,28 @@ words *systematicSearch(string word) {
     return nullptr;
 
 }
-void Edit(){
-    string word,newWord;
-    cout<<"Enter the word you want to be edited:\n";
-    cin>>word;
-    words* node=systematicSearch(word);
-    cout<<"========Enter the new word========\n";
-    cin>>newWord;
-    node->word=newWord;
+
+void Edit() {
+    string word, newWord;
+    cout << "Enter the word you want to be edited:\n";
+    cin >> word;
+    words *node = systematicSearch(word);
+    cout << "========Enter the new word========\n";
+    cin >> newWord;
+    node->word = newWord;
+
+}
+
+void save(ofstream &file) {
+    words *current = Head;
+    words *current2 = current->syn;
+    while (current) {
+        file << current->word << "  ";
+        while (current2) {
+            file << current2->word << endl;
+            current2 = current2->next;
+        }
+        current = current->next;
+    }
 
 }
