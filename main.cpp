@@ -37,9 +37,16 @@ int main() {
         cout << "7.Save the dictionary on file\n";
         cin >> selector;
         switch (selector) {
-            case 0:
-                flag = false;
+            case 0: {
+                string YN;
+                cout << "Do you want to save the Dictionary?(Y/N)\n";
+                cin >> YN;
+                if (YN == "Y")
+                    save(Dic_file);
+                else
+                    flag = false;
                 break;
+            }
             case 1: {
                 cout << "Enter the word: \n";
                 cin >> word;
@@ -273,11 +280,11 @@ void Edit() {
 
 void save(ofstream &file) {
     words *current = Head;
-    while (current!= nullptr) {
+    while (current != nullptr) {
         words *current2 = current->syn;
         file << current->word << "  ";
-        while (current2!= nullptr) {
-            file << current2->word<<"  ";
+        while (current2 != nullptr) {
+            file << current2->word << "  ";
             current2 = current2->next;
         }
         file << endl;
