@@ -71,7 +71,7 @@ int main() {
                 Edit();
                 break;
             case 7:
-                save();
+                save(Dic_file);
                 break;
 
 
@@ -273,13 +273,14 @@ void Edit() {
 
 void save(ofstream &file) {
     words *current = Head;
-    words *current2 = current->syn;
-    while (current) {
+    while (current!= nullptr) {
+        words *current2 = current->syn;
         file << current->word << "  ";
-        while (current2) {
-            file << current2->word << endl;
+        while (current2!= nullptr) {
+            file << current2->word<<"  ";
             current2 = current2->next;
         }
+        file << endl;
         current = current->next;
     }
 
