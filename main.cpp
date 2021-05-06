@@ -7,21 +7,26 @@ struct words {
     words *next;
     words *syn;
 };
-words *Head = nullptr;
 
-void DeleteAllSyn(words *syn);//A function to delete all synonyms of the word which is used in DeleteWord function
-words *CreateWord(const string &);//A function to create a word
-void print();//Print function
-void AddWord(words *);// A function for inserting words in the Linked list
-int DeleteWord(string);// A function to delete a word from the list
-void search(string);// A function to search among words
-void DeleteSynonyms();// A function to delete single synonyms by searching it
-words *systematicSearch(string word);// This function is not accessible by user and it's systematic
-void Edit();
 
-void save(ofstream &);
+void DeleteAllSyn(words *&,
+                  words *syn);               //A function to delete all synonyms of the word which is used in DeleteWord function
+words *CreateWord(const string &);                  //A function to create a word
+void print(words *&);                               //Print function
+void AddWord(words *&, words *);                   // A function for inserting words in the Linked list
+int DeleteWord(words *&, string);                 // A function to delete a word from the list
+void search(words *&, string);                   // A function to search among words
+void DeleteSynonyms(words *&);                  // A function to delete single synonyms by searching it
+words *systematicSearch(words *&, string word);// This function is not accessible by user and it's systematic
+void Edit(words *&);                          //THIS function edits the words
+void save(words *&, ofstream &);             // A function to Save the dictionary on file
+void ReadFromFile(words *&);                // Read file and make a link list
+void AddSynonyms(words *&, string, words *); //add synonyms
 
 int main() {
+    words *Head = nullptr;
+    int n;
+    string syn;
     ofstream Dic_file("dictionaryList.txt");
     bool flag = true;
     string word;
@@ -35,22 +40,33 @@ int main() {
         cout << "5.Delete Synonym\n";
         cout << "6.Edit Word\n";
         cout << "7.Save the dictionary on file\n";
+        cout << "8.Read Dictionary from Existing File\n";
         cin >> selector;
         switch (selector) {
             case 0: {
                 string YN;
                 cout << "Do you want to save the Dictionary?(Y/N)\n";
                 cin >> YN;
-                if (YN == "Y")
-                    save(Dic_file);
-                else
+                if (YN == "Y") {
+                    save(Head, Dic_file);
+                    flag = false;
+                } else
                     flag = false;
                 break;
             }
             case 1: {
                 cout << "Enter the word: \n";
                 cin >> word;
-                AddWord(CreateWord(word));
+                AddWord(Head, CreateWord(word));
+                //Add synonyms
+                cout << "Enter the number of the synonyms:\n";
+                cin >> n;
+
+                for (int i = 0; i < n; ++i) {
+                    cout << "Enter the synonyms:\n";
+                    cin >> syn;
+                    AddSynonyms(Head, word, CreateWord(syn));
+                }
 
                 break;
             }
@@ -58,29 +74,32 @@ int main() {
                 cout << "Enter the word you want to be deleted:\n";
                 string dword;
                 cin >> dword;
-                DeleteWord(dword);
+                DeleteWord(Head, dword);
                 break;
             }
             case 3: {
                 cout << "Enter the word you want to find: \n";
                 string fword;
                 cin >> fword;
-                search(fword);
+                search(Head, fword);
                 break;
             }
             case 4:
-                print();
+                print(Head);
                 break;
             case 5:
-                DeleteSynonyms();
+                DeleteSynonyms(Head);
                 break;
             case 6:
-                Edit();
+                Edit(Head);
                 break;
             case 7:
-                save(Dic_file);
+                save(Head, Dic_file);
                 break;
-
+            case 8: {
+                ReadFromFile(Head);
+                break;
+            }
 
         }
 
@@ -90,7 +109,7 @@ int main() {
 
 }
 
-void AddWord(words *node) {
+void AddWord(words *&Head, words *node) {
     words *current;
 
     if (Head == nullptr || node->word < Head->word) {
@@ -107,33 +126,11 @@ void AddWord(words *node) {
         }
 
     }
-    //Add synonyms
-    int n;
-    cout << "Enter the number of the synonyms:\n";
-    cin >> n;
-    words *current2;
-
-    for (int i = 0; i < n; ++i) {
-        words *sw = new words;
-        cout << "Enter your synonym:\n";
-        cin >> sw->word;
-        if (node->syn == nullptr || sw->word < node->syn->word) {
-            sw->next = node->syn;
-            node->syn = sw;
-        } else {
-            current2 = node->syn;
-            while (current2->next != nullptr && current2->next->word <= sw->word)
-                current2 = current2->next;
-            sw->next = current2->next;
-            current2->next = sw;
-
-        }
-    }
 
 
 }
 
-int DeleteWord(string word) {
+int DeleteWord(words *&Head, string word) {
     words *current;
     words *prev;
     current = Head;
@@ -151,7 +148,7 @@ int DeleteWord(string word) {
                     prev->next = nullptr;
                 else
                     prev->next = current->next;
-                DeleteAllSyn(current->syn);
+                DeleteAllSyn(Head, current->syn);
                 delete current;
                 return 1;
             }
@@ -164,7 +161,7 @@ int DeleteWord(string word) {
     return 0;
 }
 
-void search(string word) {
+void search(words *&Head, string word) {
     words *current;
     words *current2;
     current = Head;
@@ -190,14 +187,14 @@ void search(string word) {
 
 }
 
-words *CreateWord(const string &word) {
+words *CreateWord(const string &word) {//just creat node and get words for it
     words *node = new words{word, nullptr, nullptr};
 
     return node;
 
 }
 
-void print() {
+void print(words *&Head) {
     words *current = Head;
 
     while (current != nullptr) {
@@ -213,12 +210,12 @@ void print() {
 
 }
 
-void DeleteSynonyms() {
+void DeleteSynonyms(words *&Head) {
     string word, syn;
     words *prev;
     cout << "Enter the word: \n";
     cin >> word;
-    words *node = systematicSearch(word);
+    words *node = systematicSearch(Head, word);
     cout << "Enter the synonyms of the word: \n";
     cin >> syn;
     words **head = &node->syn;
@@ -244,7 +241,7 @@ void DeleteSynonyms() {
 
 }
 
-void DeleteAllSyn(words *syn) {
+void DeleteAllSyn(words *&Head, words *syn) {
     words *temp;
     while (syn) {
         temp = syn;
@@ -255,8 +252,8 @@ void DeleteAllSyn(words *syn) {
 
 }
 
-words *systematicSearch(string word) {
-    words *current = Head;
+words *systematicSearch(words *&Head, string word) {
+    words *current = Head;// search through nodes to find our words(the program use this function the user can't)
 
     while (current) {
         if (current->word == word)
@@ -267,28 +264,80 @@ words *systematicSearch(string word) {
 
 }
 
-void Edit() {
+void Edit(words *&Head) {
     string word, newWord;
     cout << "Enter the word you want to be edited:\n";
     cin >> word;
-    words *node = systematicSearch(word);
+    words *node = systematicSearch(Head, word);
     cout << "========Enter the new word========\n";
     cin >> newWord;
     node->word = newWord;
 
 }
 
-void save(ofstream &file) {
+void save(words *&Head, ofstream &file) {
     words *current = Head;
     while (current != nullptr) {
         words *current2 = current->syn;
-        file << current->word << "  ";
+        file << current->word << "  ";// split words and their synonyms
         while (current2 != nullptr) {
-            file << current2->word << "  ";
+            file << current2->word << "  ";//split synonyms
             current2 = current2->next;
         }
         file << endl;
         current = current->next;
     }
+
+}
+
+void ReadFromFile(words *&Head) {
+    string file_address;
+    cout << "Enter of your file address(name.txt)\n";
+    cin >> file_address;
+    ifstream Rfile(file_address);
+    string fword;
+    int counter = 0;//count the number of spaces
+
+    string mainWord;
+    while (getline(Rfile, fword)) {
+        string word = "";
+        for (char x : fword)
+        { if (x == ' ') {//InputFile.txt
+                if (counter == 0) {
+                    mainWord = word;
+                    AddWord(Head, CreateWord(word));
+                } else {
+                    AddSynonyms(Head, mainWord, CreateWord(word));
+                }
+                word = "";
+                counter++;
+            } else {
+                word += x;
+            }}
+        AddSynonyms(Head, mainWord, CreateWord(word));
+        counter = 0;
+    }
+
+}
+
+void AddSynonyms(words *&Head, string word, words *node) {
+
+    words *current = Head, *current2;
+    while (current->word != word) {
+        current = current->next;
+    }
+
+    if (current->syn == nullptr || node->word < current->syn->word) {
+        node->next = current->syn;
+        current->syn = node;
+    } else {
+        current2 = current->syn;
+        while (current2->next != nullptr && current2->next->word <= node->word)
+            current2 = current2->next;
+        node->next = current2->next;
+        current2->next = node;
+
+    }
+
 
 }
